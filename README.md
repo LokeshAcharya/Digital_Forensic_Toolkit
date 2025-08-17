@@ -151,8 +151,6 @@ Data: SSH-2.0-libssh...
 ==================================================
 ```
 
-### Email Alert (HTML)
-![Email Alert](https://via.placeholder.com/600x300?text=Honeypot+Email+Alert)
 
 ### Webhook Payload
 ```json
