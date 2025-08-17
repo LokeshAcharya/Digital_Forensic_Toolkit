@@ -1,226 +1,330 @@
-# Digital Forensic Toolkit - CLI Version
+# 🍯 Honeypot Alert System
 
-A comprehensive command-line toolkit for digital forensics education and practice, featuring file recovery and steganography capabilities.
+A comprehensive intrusion detection and alerting system designed to detect, log, and notify about unauthorized access attempts using honeypot technology.
 
 ---
 
 ## 📦 Overview
 
-This toolkit provides two essential digital forensic modules:
+The **Honeypot Alert System** is a Python-based security tool that simulates vulnerable services on various network ports to attract and monitor potential attackers. When an intrusion attempt is detected, it logs the event and sends real-time alerts via multiple channels.
 
-1. **File Recovery Tool** – Recovers deleted files from disk images using file signature (magic byte) analysis.
-2. **Steganography Tool** – Hides and extracts secret messages in images using the Least Significant Bit (LSB) technique.
-
-Designed for educational use and practical forensic investigations, this tool supports various file types and integrates seamlessly into forensic workflows.
-
----
-
-## 🛠️ Features
-
-### 🔍 File Recovery Module
-- Scans disk images for known file signatures (magic bytes)
-- Supports recovery of over 20 common file types:
-  - Images: JPEG, PNG, GIF, BMP, TIFF
-  - Documents: PDF, DOC, DOCX, RTF
-  - Archives: ZIP, RAR, TAR
-  - Audio/Video: MP3, MP4, AVI, WAV, FLAC, OGG
-  - Executables: EXE
-  - Databases: SQLite
-- Automatic file type detection and extension assignment
-- Detailed recovery statistics
-- Configurable output directory and chunk size
-
-### 🖼️ Steganography Module
-- Hide text messages inside images (LSB encoding)
-- Extract hidden messages from stego-images
-- Analyze images for potential steganographic content
-- Automatic capacity calculation
-- Delimiter-based message termination
-- Support for PNG, JPG, BMP, and other common formats
+This system is ideal for:
+- Monitoring network threats
+- Gathering threat intelligence
+- Enhancing network security posture
+- Educational purposes in cybersecurity
 
 ---
 
-## 🚀 Installation
+## 🔧 Key Features
+
+### 🕵️‍♂️ Intrusion Detection
+- Simulates real services (SSH, FTP, HTTP, etc.) on open ports
+- Listens on both **TCP** and **UDP** protocols
+- Captures connection metadata and transmitted data
+
+### 🚨 Multi-Channel Alerts
+- **Email alerts** with HTML formatting
+- **Webhook integration** (Slack, Discord, SIEM, etc.)
+- **Console logging** with severity levels
+- Detailed intrusion information
+
+### 🗃️ Data Logging & Storage
+- SQLite database for persistent storage
+- Logs include:
+  - Timestamp
+  - Source IP and port
+  - Target port and protocol
+  - Transmitted data
+  - Threat level
+  - Geographic information (via IP geolocation)
+
+### 🧠 Threat Intelligence
+- Automatic **threat level analysis** (LOW/MEDIUM/HIGH)
+- Pattern matching for suspicious payloads
+- Detection of common attack vectors:
+  - SQL injection attempts
+  - XSS patterns
+  - Credential scanning
+  - System file access
+- IP geolocation using public APIs
+
+---
+
+## 🛠️ Installation
 
 ### Prerequisites
-- Python 3.6 or higher
-- `Pillow` (PIL) for image processing
+- Python 3.6+
+- Standard libraries: `socket`, `threading`, `logging`, `sqlite3`, `json`, `smtplib`, `requests`
 
 ### Install Dependencies
 ```bash
-pip install pillow
+pip install requests
 ```
 
-> 💡 No other external packages are required.
+> ✅ No other external packages required.
 
 ---
 
-## 🧪 Quick Start
+## ⚙️ Configuration
 
-### Clone or download the script:
-```bash
-wget https://raw.githubusercontent.com/your-repo/digital-forensic-toolkit/main/forensic_toolkit.py
+A configuration file (`honeypot_config.json`) manages all settings. If not present, a default one is created.
+
+### Sample Configuration
+```json
+{
+    "ports": [22, 23, 21, 80, 443, 25, 135, 445, 3389],
+    "protocols": ["TCP", "TCP", "TCP", "TCP", "TCP", "TCP", "TCP", "TCP", "TCP"],
+    "email": {
+        "enabled": true,
+        "smtp_server": "smtp.gmail.com",
+        "smtp_port": 587,
+        "from_email": "honeypot@yourcompany.com",
+        "to_email": "security@yourcompany.com",
+        "username": "your_email@gmail.com",
+        "password": "your_app_password"
+    },
+    "webhook": {
+        "enabled": true,
+        "url": "https://your-webhook-url.com/alerts"
+    }
+}
 ```
 
-Make it executable:
+### Create Sample Config
 ```bash
-chmod +x forensic_toolkit.py
+python honeypot.py --create-config
 ```
+> Creates `sample_config.json` – customize and rename to `honeypot_config.json`.
 
 ---
 
-## 🛠️ Usage Examples
+## 🚀 Usage
 
-### 1. File Recovery
-Recover files from a disk image:
+### Start the Honeypot System
 ```bash
-python forensic_toolkit.py recovery --image disk.img --output recovered_files/
+python honeypot.py
 ```
 
-Use custom chunk size (e.g., 512 KB):
+Or with custom config:
 ```bash
-python forensic_toolkit.py recovery --image disk.img --output recovered/ --chunk-size 524288
+python honeypot.py --config /path/to/custom_config.json
 ```
+
+### Stop the System
+Press `Ctrl+C` to gracefully shut down all services.
 
 ---
 
-### 2. Steganography – Encode Message
-Hide a secret message in an image:
-```bash
-python forensic_toolkit.py steganography encode \
-  --cover photo.png \
-  --message "Top secret message!" \
-  --output stego_photo.png
-```
+## 🌐 Supported Services & Ports
+
+The system can simulate services on any port. Common defaults include:
+
+| Port | Service | Risk Level |
+|------|--------|------------|
+| 21   | FTP    | High |
+| 22   | SSH    | High |
+| 23   | Telnet | High |
+| 25   | SMTP   | Medium |
+| 53   | DNS    | Medium |
+| 80   | HTTP   | High |
+| 135  | RPC    | High |
+| 443  | HTTPS  | High |
+| 445  | SMB    | High |
+| 3389 | RDP    | High |
+
+> All services return **fake banners** to appear legitimate.
 
 ---
 
-### 3. Steganography – Decode Message
-Extract a hidden message:
-```bash
-python forensic_toolkit.py steganography decode --image stego_photo.png
+## 📊 Sample Alert Output
+
+### Console Log
 ```
-Output:
-```
-[SUCCESS] Decoded message:
-----------------------------------------
-Top secret message!
-----------------------------------------
-```
-
----
-
-### 4. Steganography – Analyze Image
-Check if an image contains hidden data:
-```bash
-python forensic_toolkit.py steganography analyze --image suspicious.png
-```
-
----
-
-### 5. Create Test Image
-Generate a test image for steganography experiments:
-```bash
-python forensic_toolkit.py create-test-image --filename test.png --width 1024 --height 768
-```
-
----
-
-## 📂 Output Structure
-
-After file recovery, the output directory will contain:
-```
-recovered_files/
-├── recovered_0000_jpeg_offset_000a2f3c.jpg
-├── recovered_0001_png_offset_001b4c20.png
-├── recovered_0002_pdf_offset_002d8e1a.pdf
-└── ...
-```
-
-Each file is named with:
-- Index
-- File type
-- Offset in the disk image (hex)
-- Correct file extension
-
----
-
-## 📊 Statistics
-
-The recovery tool provides detailed statistics:
-```
-==================================================
-RECOVERY STATISTICS
-==================================================
-Total files recovered: 15
-Total size recovered: 24.78 MB
-
-File types found:
-  JPEG: 7 files
-  PNG: 4 files
-  PDF: 3 files
-  ZIP: 1 files
+2023-12-05 14:23:18,456 - WARNING - 🚨 INTRUSION DETECTED 🚨
+Time: 2023-12-05T14:23:18.456
+Source IP: 45.34.12.99
+Target Port: 22
+Protocol: TCP
+Threat Level: HIGH
+Data: SSH-2.0-libssh...
 ==================================================
 ```
 
+### Email Alert (HTML)
+![Email Alert](https://via.placeholder.com/600x300?text=Honeypot+Email+Alert)
+
+### Webhook Payload
+```json
+{
+  "alert_type": "honeypot_intrusion",
+  "timestamp": "2023-12-05T14:23:18.456",
+  "source_ip": "45.34.12.99",
+  "threat_level": "HIGH",
+  "details": {
+    "source_port": 54321,
+    "target_port": 22,
+    "protocol": "TCP",
+    "data": "SSH-2.0-libssh...",
+    "geographic_info": "Moscow, Russia (ISP: Example Telecom)"
+  }
+}
+```
+
 ---
 
-## ⚠️ Limitations & Notes
+## 🗃️ Database Schema
 
-- **File Recovery**:
-  - Works best on raw disk images (e.g., `.img`, `.dd`)
-  - Fragmented files may not be fully recovered
-  - Some file types use heuristic-based extraction (e.g., MP3)
-  - Does not recover file names or directory structure
+All intrusion attempts are stored in `honeypot.db`:
 
-- **Steganography**:
-  - LSB method is basic and detectable
-  - JPEG compression may destroy hidden data
-  - Use lossless formats (PNG) for reliable results
-  - Message length limited by image size
+```sql
+CREATE TABLE intrusions (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    timestamp TEXT NOT NULL,
+    source_ip TEXT NOT NULL,
+    source_port INTEGER,
+    target_port INTEGER,
+    protocol TEXT,
+    data TEXT,
+    threat_level TEXT,
+    geographic_info TEXT
+);
+```
+
+### Query Examples
+```sql
+-- View all high-risk attempts
+SELECT * FROM intrusions WHERE threat_level = 'HIGH';
+
+-- Count attempts by IP
+SELECT source_ip, COUNT(*) FROM intrusions GROUP BY source_ip ORDER BY COUNT(*) DESC;
+
+-- Recent HTTP attempts
+SELECT * FROM intrusions WHERE target_port = 80 ORDER BY timestamp DESC LIMIT 10;
+```
+
+---
+
+## 🧠 Threat Analysis
+
+The system uses multiple heuristics to determine threat levels:
+
+| Factor | Weight |
+|-------|--------|
+| Suspicious keywords (SQLi, XSS, etc.) | +2 |
+| High-risk port | +1 |
+| Large payload size (>1KB) | +1 |
+
+**Threat Levels:**
+- **HIGH**: Score ≥ 4
+- **MEDIUM**: Score ≥ 2
+- **LOW**: Score < 2
+
+---
+
+## 🌍 Geolocation
+
+Uses [ip-api.com](http://ip-api.com) to resolve attacker location:
+- City
+- Country
+- ISP (Internet Service Provider)
+
+> ✅ No API key required for basic usage.
+
+---
+
+## 🛡️ Security & Best Practices
+
+### For Production Use:
+- Run on a **dedicated machine** or VM
+- Use **firewall rules** to limit exposure
+- Enable alerts only on necessary channels
+- Rotate email credentials regularly
+- Monitor logs for false positives
+
+### Email Security
+- Use **App Passwords** instead of regular passwords (e.g., Gmail)
+- Never commit credentials to version control
+- Consider using a dedicated email account
+
+---
+
+## 📁 File Structure
+```
+honeypot/
+├── honeypot.py               # Main application
+├── honeypot_config.json      # Configuration file
+├── honeypot.db               # SQLite database
+├── honeypot_alerts.log       # Log file
+└── sample_config.json        # Template (generated)
+```
+
+---
+
+## 🧩 Extensibility
+
+The modular design allows easy enhancements:
+- Add new alert channels (SMS, Telegram, etc.)
+- Integrate with SIEM systems
+- Implement machine learning for anomaly detection
+- Add service-specific response logic
+- Support for IPv6
 
 ---
 
 ## 📚 Educational Use
 
-This toolkit is ideal for:
-- Teaching digital forensics concepts
-- Demonstrating file carving techniques
-- Exploring steganography and data hiding
-- Hands-on lab exercises in cybersecurity courses
+Perfect for:
+- Cybersecurity labs
+- Ethical hacking courses
+- Network security demonstrations
+- Threat intelligence research
+
+Students can:
+- Learn about attacker behavior
+- Analyze real-world attack patterns
+- Understand intrusion detection
+- Practice incident response
+
+---
+
+## 📄 License
+
+This project is open-source and available for educational and non-commercial use.
+
+> ⚠️ **Important**: Use only on networks you have explicit permission to monitor. Unauthorized monitoring may violate privacy laws.
 
 ---
 
 ## 🧑‍💻 Author
 
 **Lokesh Acharya**  
-Cyber Security Student
+Cybersecurity Student
 
 ---
 
-## 📄 License
+## 🐛 Troubleshooting
 
-This project is open-source and available for educational and non-commercial use. Modify and share as needed.
-
-> Note: Use responsibly and only on systems/data you have legal authorization to analyze.
-
----
-
-## 🤝 Feedback & Contributions
-
-Feel free to open issues or submit pull requests for improvements, bug fixes, or new features!
+| Issue | Solution |
+|------|----------|
+| `Permission denied` on port | Run with `sudo` or use ports > 1024 |
+| Email not sending | Check SMTP settings and app password |
+| Webhook timeout | Verify URL and network connectivity |
+| No alerts | Ensure config file is properly formatted |
+| High CPU usage | Reduce number of monitored ports |
 
 ---
 
-## 🎯 Future Enhancements (Planned)
+## 🚀 Future Enhancements
 
-- Add entropy analysis for steganography detection
-- Support for more file signatures
-- JSON output for automation
-- GUI version using Tkinter or web interface
-- Hash verification of recovered files
+- 📈 Web dashboard for real-time monitoring
+- 📊 Attack pattern visualization
+- 🔁 Auto-blocking of malicious IPs (via firewall)
+- 🤖 AI-based anomaly detection
+- 📱 Mobile push notifications
+- 🔄 Integration with threat intelligence feeds
 
 ---
 
-> ✅ **Always use forensic tools ethically and legally.**  
-> This toolkit is for learning and authorized investigations only.
+> 🍯 **"The best defense is a good deception."**  
+> Deploy honeypots to turn attackers into informants.
