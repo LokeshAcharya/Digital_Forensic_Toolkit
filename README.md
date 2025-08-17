@@ -194,7 +194,7 @@ This toolkit is ideal for:
 ## 🧑‍💻 Author
 
 **Lokesh Acharya**  
-Digital Forensics Enthusiast & Educator
+Cyber Security Student
 
 ---
 
